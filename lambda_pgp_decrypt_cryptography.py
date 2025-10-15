@@ -4,7 +4,6 @@ AWS Lambda function for PGP decryption using pure cryptography library.
 Fetches PGP credentials from AWS Secrets Manager and decrypts files from S3.
 """
 
-import base64
 import json
 import os
 import subprocess
@@ -12,12 +11,6 @@ import tempfile
 
 import boto3
 from botocore.exceptions import ClientError
-
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 def get_secret(secret_name, region_name="ap-southeast-2"):
