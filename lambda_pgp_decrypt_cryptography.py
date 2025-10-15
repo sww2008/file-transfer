@@ -8,12 +8,13 @@ import json
 import os
 import subprocess
 import tempfile
+from typing import Any, Dict
 
 import boto3
 from botocore.exceptions import ClientError
 
 
-def get_secret(secret_name, region_name="ap-southeast-2"):
+def get_secret(secret_name: str, region_name: str = "ap-southeast-2") -> Any:
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
@@ -27,7 +28,7 @@ def get_secret(secret_name, region_name="ap-southeast-2"):
     return secret
 
 
-def download_from_s3(bucket_name, object_key, local_path):
+def download_from_s3(bucket_name: str, object_key: str, local_path: str) -> None:
     s3_client = boto3.client("s3")
 
     try:
@@ -36,7 +37,7 @@ def download_from_s3(bucket_name, object_key, local_path):
         raise Exception(f"Error downloading from S3: {str(e)}")
 
 
-def upload_to_s3(bucket_name, object_key, local_path):
+def upload_to_s3(bucket_name: str, object_key: str, local_path: str) -> None:
     s3_client = boto3.client("s3")
 
     try:
@@ -45,7 +46,7 @@ def upload_to_s3(bucket_name, object_key, local_path):
         raise Exception(f"Error uploading to S3: {str(e)}")
 
 
-def parse_pgp_private_key(key_data, passphrase):
+def parse_pgp_private_key(key_data: str, passphrase: str) -> str:
     """Parse PGP private key using cryptography library."""
     try:
         # This is a simplified approach - full PGP parsing is complex
@@ -97,7 +98,9 @@ def parse_pgp_private_key(key_data, passphrase):
         raise Exception(f"Error parsing private key: {str(e)}")
 
 
-def decrypt_file_cryptography(encrypted_file_path, private_key_data, passphrase, output_file_path):
+def decrypt_file_cryptography(
+    encrypted_file_path: str, private_key_data: str, passphrase: str, output_file_path: str
+) -> bytes:
     """Decrypt file using cryptography library with minimal GPG interaction."""
     try:
         # For now, we'll use a hybrid approach
@@ -182,7 +185,7 @@ def decrypt_file_cryptography(encrypted_file_path, private_key_data, passphrase,
         raise Exception(f"Error decrypting file: {str(e)}")
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     try:
         # Get configuration from environment variables
