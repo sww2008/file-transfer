@@ -1,4 +1,4 @@
-name: Build PGPy Lambda Package
+name: Build PGPy Lambda Package (PRIMARY)
 
 on:
   push:

@@ -1,10 +1,11 @@
-name: Build Lambda Package
+name: Build Cryptography Lambda Package (DISABLED)
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+  # Disabled - using PGPy workflow instead
+  # push:
+  #   branches: [ main, develop ]
+  # pull_request:
+  #   branches: [ main ]
   workflow_dispatch:
 
 env:
