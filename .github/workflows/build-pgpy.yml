@@ -112,13 +112,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y zip
         
-    - name: Install Python dependencies (optimized for layer)
+    - name: Install Python dependencies (with PGPy included)
       run: |
         python -m pip install --upgrade pip
-        # Install only essential dependencies - pgpy will be provided by Lambda layer
-        pip install --no-cache-dir --no-deps -r requirements-pgpy.txt -t ./package
-        # Install only AWS SDK dependencies (pgpy comes from layer)
-        pip install --no-cache-dir boto3 botocore -t ./package
+        # Install all dependencies including PGPy and cryptography
+        pip install --no-cache-dir -r requirements-pgpy.txt -t ./package
+        # Ensure cffi and pycparser are properly installed
+        pip install --no-cache-dir cffi pycparser -t ./package
         
     - name: Create deployment package (optimized)
       run: |

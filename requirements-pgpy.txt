@@ -5,5 +5,7 @@ botocore>=1.29.0
 # PGPy for PGP operations (included in package)
 pgpy>=0.6.0
 
-# Cryptography (required by PGPy)
+# Cryptography and dependencies (required by PGPy)
 cryptography>=41.0.0
+cffi>=1.15.0
+pycparser>=2.21
