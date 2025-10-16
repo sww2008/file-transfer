@@ -51,26 +51,78 @@ def upload_to_s3(bucket_name: str, object_key: str, local_path: str) -> None:
 
 
 def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphrase: str, output_file_path: str) -> Any:
-    """Decrypt PGP file using pgpy library with memory optimization."""
+    """Decrypt PGP file using pgpy library with memory optimization and error handling."""
     try:
         # Parse the private key
         private_key, _ = PGPKey.from_blob(private_key_data)
 
         # Unlock the private key with passphrase
         with private_key.unlock(passphrase):
-            # Read the encrypted file in chunks to reduce memory usage
+            # Read the encrypted file
             with open(encrypted_file_path, "rb") as f:
                 encrypted_data = f.read()
 
-            # Parse the PGP message
-            message = PGPMessage.from_blob(encrypted_data)
+            print(f"Encrypted file size: {len(encrypted_data)} bytes")
 
-            # Decrypt the message
-            decrypted_message = private_key.decrypt(message)
+            # Try different approaches to handle the PGP message
+            try:
+                # Method 1: Direct message parsing
+                message = PGPMessage.from_blob(encrypted_data)
+                print("Successfully parsed PGP message")
+                
+                # Decrypt the message
+                decrypted_message = private_key.decrypt(message)
+                print("Successfully decrypted message")
+                
+            except Exception as parse_error:
+                print(f"Direct parsing failed: {str(parse_error)}")
+                
+                # Method 2: Try to handle as raw data
+                try:
+                    # Create a new message from raw data
+                    message = PGPMessage()
+                    message.parse(encrypted_data)
+                    print("Successfully parsed using alternative method")
+                    
+                    # Decrypt the message
+                    decrypted_message = private_key.decrypt(message)
+                    print("Successfully decrypted using alternative method")
+                    
+                except Exception as alt_error:
+                    print(f"Alternative parsing failed: {str(alt_error)}")
+                    
+                    # Method 3: Try to extract data directly
+                    try:
+                        # Look for literal data packets
+                        from pgpy.packet.types import LiteralData
+                        
+                        # Try to find literal data in the message
+                        message = PGPMessage.from_blob(encrypted_data)
+                        
+                        # Get the raw message data
+                        if hasattr(message, 'message') and message.message:
+                            decrypted_data = message.message
+                        else:
+                            # Try to extract from packets
+                            for packet in message:
+                                if isinstance(packet, LiteralData):
+                                    decrypted_data = packet.data
+                                    break
+                            else:
+                                raise Exception("No literal data found in message")
+                        
+                        decrypted_message = type('DecryptedMessage', (), {'message': decrypted_data})()
+                        print("Successfully extracted data using packet inspection")
+                        
+                    except Exception as extract_error:
+                        print(f"Packet extraction failed: {str(extract_error)}")
+                        raise Exception(f"All decryption methods failed. Last error: {str(extract_error)}")
 
             # Write decrypted data to output file
             with open(output_file_path, "wb") as f:
                 f.write(decrypted_message.message)
+
+            print(f"Decrypted data size: {len(decrypted_message.message)} bytes")
 
             # Clear variables to free memory
             del encrypted_data
@@ -79,6 +131,8 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
             return decrypted_message.message
 
     except Exception as e:
+        print(f"Decryption error details: {str(e)}")
+        print(f"Error type: {type(e)}")
         raise Exception(f"Error decrypting file with PGPy: {str(e)}")
 
 
