@@ -11,7 +11,7 @@ from typing import Any, Dict
 
 import boto3
 from botocore.exceptions import ClientError
-from pgpy import PGPMessage, PGPKey
+from pgpy import PGPKey, PGPMessage
 
 
 def get_secret(secret_name: str, region_name: str = "ap-southeast-2") -> Any:
@@ -51,23 +51,23 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
     try:
         # Parse the private key
         private_key, _ = PGPKey.from_blob(private_key_data)
-        
+
         # Unlock the private key with passphrase
         with private_key.unlock(passphrase):
             # Read the encrypted file
-            with open(encrypted_file_path, 'rb') as f:
+            with open(encrypted_file_path, "rb") as f:
                 encrypted_data = f.read()
-            
+
             # Parse the PGP message
             message = PGPMessage.from_blob(encrypted_data)
-            
+
             # Decrypt the message
             decrypted_message = private_key.decrypt(message)
-            
+
             # Write decrypted data to output file
-            with open(output_file_path, 'wb') as f:
+            with open(output_file_path, "wb") as f:
                 f.write(decrypted_message.message)
-            
+
             return decrypted_message.message
 
     except Exception as e:
