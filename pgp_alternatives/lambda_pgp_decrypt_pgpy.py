@@ -7,11 +7,15 @@ Fetches PGP credentials from AWS Secrets Manager and decrypts files from S3.
 import json
 import os
 import tempfile
+import warnings
 from typing import Any, Dict
 
 import boto3
 from botocore.exceptions import ClientError
 from pgpy import PGPKey, PGPMessage
+
+# Suppress cryptography deprecation warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="cryptography")
 
 
 def get_secret(secret_name: str, region_name: str = "ap-southeast-2") -> Any:
