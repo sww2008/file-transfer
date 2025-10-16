@@ -69,38 +69,38 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
                 # Method 1: Direct message parsing
                 message = PGPMessage.from_blob(encrypted_data)
                 print("Successfully parsed PGP message")
-                
+
                 # Decrypt the message
                 decrypted_message = private_key.decrypt(message)
                 print("Successfully decrypted message")
-                
+
             except Exception as parse_error:
                 print(f"Direct parsing failed: {str(parse_error)}")
-                
+
                 # Method 2: Try to handle as raw data
                 try:
                     # Create a new message from raw data
                     message = PGPMessage()
                     message.parse(encrypted_data)
                     print("Successfully parsed using alternative method")
-                    
+
                     # Decrypt the message
                     decrypted_message = private_key.decrypt(message)
                     print("Successfully decrypted using alternative method")
-                    
+
                 except Exception as alt_error:
                     print(f"Alternative parsing failed: {str(alt_error)}")
-                    
+
                     # Method 3: Try to extract data directly
                     try:
                         # Look for literal data packets
                         from pgpy.packet.types import LiteralData
-                        
+
                         # Try to find literal data in the message
                         message = PGPMessage.from_blob(encrypted_data)
-                        
+
                         # Get the raw message data
-                        if hasattr(message, 'message') and message.message:
+                        if hasattr(message, "message") and message.message:
                             decrypted_data = message.message
                         else:
                             # Try to extract from packets
@@ -110,10 +110,10 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
                                     break
                             else:
                                 raise Exception("No literal data found in message")
-                        
-                        decrypted_message = type('DecryptedMessage', (), {'message': decrypted_data})()
+
+                        decrypted_message = type("DecryptedMessage", (), {"message": decrypted_data})()
                         print("Successfully extracted data using packet inspection")
-                        
+
                     except Exception as extract_error:
                         print(f"Packet extraction failed: {str(extract_error)}")
                         raise Exception(f"All decryption methods failed. Last error: {str(extract_error)}")
@@ -127,7 +127,7 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
             # Clear variables to free memory
             del encrypted_data
             del message
-            
+
             return decrypted_message.message
 
     except Exception as e:
@@ -151,26 +151,26 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             records = event["Records"]
             if not records:
                 raise ValueError("No records found in S3 event")
-            
+
             s3_record = records[0]
             if "s3" not in s3_record:
                 raise ValueError("Invalid S3 event structure")
-            
+
             # Extract bucket and object key from S3 event
             bucket_name = s3_record["s3"]["bucket"]["name"]
             object_key = s3_record["s3"]["object"]["key"]
-            
+
             # Use bucket from event if S3_BUCKET env var not set
             if not s3_bucket:
                 s3_bucket = bucket_name
-            
+
             # Extract file name from object key
             file_name = os.path.basename(object_key)
-            
+
             # Use the full object key as the encrypted key
             s3_encrypted_key = object_key
             s3_output_key = f"{decrypted_s3_prefix.rstrip('/')}/{file_name.replace('.gpg', '.txt')}"
-            
+
         else:
             # Direct parameter structure (backward compatibility)
             file_name = event.get("file_name")
