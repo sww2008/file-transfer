@@ -158,6 +158,13 @@ jobs:
         echo "Git Ref: ${{ github.ref }}" >> package-info-pgpy.txt
         echo "Implementation: PGPy" >> package-info-pgpy.txt
         echo "Dependencies: AWS SDK only (PGPy from Lambda layer)" >> package-info-pgpy.txt
+        echo "Required Layer: new-gpg-layer" >> package-info-pgpy.txt
+        echo "" >> package-info-pgpy.txt
+        echo "Deployment Instructions:" >> package-info-pgpy.txt
+        echo "1. Upload lambda-pgpy-deployment-package.zip to Lambda function" >> package-info-pgpy.txt
+        echo "2. Attach layer 'new-gpg-layer' to the Lambda function" >> package-info-pgpy.txt
+        echo "3. Set runtime to python3.12" >> package-info-pgpy.txt
+        echo "4. Set architecture to x86_64" >> package-info-pgpy.txt
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
