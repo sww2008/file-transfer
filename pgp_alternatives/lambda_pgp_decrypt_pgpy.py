@@ -46,7 +46,7 @@ def upload_to_s3(bucket_name: str, object_key: str, local_path: str) -> None:
         raise Exception(f"Error uploading to S3: {str(e)}")
 
 
-def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphrase: str, output_file_path: str) -> bytes:
+def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphrase: str, output_file_path: str) -> Any:
     """Decrypt PGP file using pgpy library."""
     try:
         # Parse the private key
