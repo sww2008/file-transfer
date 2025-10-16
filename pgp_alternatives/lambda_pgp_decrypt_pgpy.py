@@ -83,19 +83,46 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         secret_name = os.environ.get("GPG_SECRET_NAME", "gpg-credentials")
         secret_region = os.environ.get("SECRET_REGION", "ap-southeast-2")
 
-        # Parse event parameters
-        file_name = event.get("file_name")
-        output_file_name = event.get("output_file_name")
+        # Handle S3 event structure
+        if "Records" in event:
+            # S3 event structure
+            records = event["Records"]
+            if not records:
+                raise ValueError("No records found in S3 event")
+            
+            s3_record = records[0]
+            if "s3" not in s3_record:
+                raise ValueError("Invalid S3 event structure")
+            
+            # Extract bucket and object key from S3 event
+            bucket_name = s3_record["s3"]["bucket"]["name"]
+            object_key = s3_record["s3"]["object"]["key"]
+            
+            # Use bucket from event if S3_BUCKET env var not set
+            if not s3_bucket:
+                s3_bucket = bucket_name
+            
+            # Extract file name from object key
+            file_name = os.path.basename(object_key)
+            
+            # Use the full object key as the encrypted key
+            s3_encrypted_key = object_key
+            s3_output_key = f"{decrypted_s3_prefix.rstrip('/')}/{file_name.replace('.gpg', '.txt')}"
+            
+        else:
+            # Direct parameter structure (backward compatibility)
+            file_name = event.get("file_name")
+            output_file_name = event.get("output_file_name")
 
-        if not s3_bucket:
-            raise ValueError("Missing required environment variable: S3_BUCKET")
+            if not s3_bucket:
+                raise ValueError("Missing required environment variable: S3_BUCKET")
 
-        if not file_name:
-            raise ValueError("Missing required parameter: file_name")
+            if not file_name:
+                raise ValueError("Missing required parameter: file_name")
 
-        # Construct S3 keys
-        s3_encrypted_key = f"{encrypted_s3_prefix.rstrip('/')}/{file_name}"
-        s3_output_key = f"{decrypted_s3_prefix.rstrip('/')}/{output_file_name or file_name.replace('.gpg', '.txt')}"
+            # Construct S3 keys
+            s3_encrypted_key = f"{encrypted_s3_prefix.rstrip('/')}/{file_name}"
+            s3_output_key = f"{decrypted_s3_prefix.rstrip('/')}/{output_file_name or file_name.replace('.gpg', '.txt')}"
 
         # Default field names for secrets
         private_key_field = "PGPPrivateKey"
