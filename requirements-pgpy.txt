@@ -2,4 +2,5 @@
 boto3>=1.26.0
 botocore>=1.29.0
 
-# Note: pgpy will be provided by Lambda layer
+# PGPy for PGP operations (included in package)
+pgpy>=0.6.0
