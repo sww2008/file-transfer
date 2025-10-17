@@ -14,6 +14,7 @@ import boto3
 from botocore.exceptions import ClientError
 from pgpy import PGPKey, PGPMessage
 import pgpy
+
 print("PGPy version:", pgpy.__version__)
 
 # Suppress cryptography deprecation warnings
