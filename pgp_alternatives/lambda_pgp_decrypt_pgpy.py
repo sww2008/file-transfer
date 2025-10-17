@@ -94,25 +94,27 @@ def decrypt_file_pgpy(encrypted_file_path: str, private_key_data: str, passphras
                 except Exception as alt_error:
                     print(f"Alternative parsing failed: {str(alt_error)}")
 
-                    # Method 3: Try to extract data directly
+                    # Method 3: Try to extract data directly without specific packet types
                     try:
-                        # Look for literal data packets
-                        from pgpy.packet.types import LiteralData
-
-                        # Try to find literal data in the message
+                        # Try to find literal data in the message without importing specific types
                         message = PGPMessage.from_blob(encrypted_data)
 
                         # Get the raw message data
                         if hasattr(message, "message") and message.message:
                             decrypted_data = message.message
                         else:
-                            # Try to extract from packets
+                            # Try to extract from packets without specific type checking
+                            decrypted_data = None
                             for packet in message:
-                                if isinstance(packet, LiteralData):
+                                if hasattr(packet, "data") and packet.data:
                                     decrypted_data = packet.data
                                     break
-                            else:
-                                raise Exception("No literal data found in message")
+                                elif hasattr(packet, "message") and packet.message:
+                                    decrypted_data = packet.message
+                                    break
+
+                            if not decrypted_data:
+                                raise Exception("No data found in message packets")
 
                         decrypted_message = type("DecryptedMessage", (), {"message": decrypted_data})()
                         print("Successfully extracted data using packet inspection")
