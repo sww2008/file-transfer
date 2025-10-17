@@ -11,9 +11,9 @@ import warnings
 from typing import Any, Dict
 
 import boto3
+import pgpy
 from botocore.exceptions import ClientError
 from pgpy import PGPKey, PGPMessage
-import pgpy
 
 print("PGPy version:", pgpy.__version__)
 
