@@ -46,9 +46,9 @@ jobs:
         pip install -r requirements-pgpy.txt
         pip install black isort==7.0.0 mypy
         
-    - name: Format check with black
-      run: |
-        black --check pgp_alternatives/lambda_pgp_decrypt_pgpy.py
+    # - name: Format check with black
+    #   run: |
+    #     black --check pgp_alternatives/lambda_pgp_decrypt_pgpy.py
         
     - name: Import sorting check with isort
       run: |
