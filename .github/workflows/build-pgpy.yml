@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.13'
   AWS_REGION: 'ap-southeast-2'
-  LAMBDA_RUNTIME: 'python3.12'
+  LAMBDA_RUNTIME: 'python3.13'
   LAMBDA_ARCHITECTURE: 'x86_64'
 
 jobs:
@@ -152,7 +152,7 @@ jobs:
         echo "Runtime: ${{ env.LAMBDA_RUNTIME }}" >> package-info-pgpy.txt
         echo "Architecture: ${{ env.LAMBDA_ARCHITECTURE }}" >> package-info-pgpy.txt
         echo "Python Version: ${{ env.PYTHON_VERSION }}" >> package-info-pgpy.txt
-        echo "Note: Using Python 3.12 due to pgpy compatibility with imghdr module" >> package-info-pgpy.txt
+        echo "Note: Using Python 3.13 for latest features and performance" >> package-info-pgpy.txt
         echo "Build Date: $(date -u)" >> package-info-pgpy.txt
         echo "Git Commit: ${{ github.sha }}" >> package-info-pgpy.txt
         echo "Git Ref: ${{ github.ref }}" >> package-info-pgpy.txt
